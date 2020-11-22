@@ -735,4 +735,3 @@ func flattenProjectPushRules(pushRules *gitlab.ProjectPushRules) (values []map[s
 		},
 	}
 }
-
