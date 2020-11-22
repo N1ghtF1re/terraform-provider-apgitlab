@@ -268,6 +268,11 @@ var resourceGitLabProjectSchema = map[string]*schema.Schema{
 		Type:     schema.TypeInt,
 		Optional: true,
 	},
+	"ci_config_path": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Default:  ".gitlab-ci.yml",
+	},
 }
 
 func resourceGitlabProject() *schema.Resource {
@@ -313,6 +318,7 @@ func resourceGitlabProjectSetToState(d *schema.ResourceData, project *gitlab.Pro
 	d.Set("archived", project.Archived)
 	d.Set("remove_source_branch_after_merge", project.RemoveSourceBranchAfterMerge)
 	d.Set("packages_enabled", project.PackagesEnabled)
+	d.Set("ci_config_path", project.CIConfigPath)
 }
 
 func resourceGitlabProjectCreate(d *schema.ResourceData, meta interface{}) error {
@@ -336,6 +342,7 @@ func resourceGitlabProjectCreate(d *schema.ResourceData, meta interface{}) error
 		SharedRunnersEnabled:                      gitlab.Bool(d.Get("shared_runners_enabled").(bool)),
 		RemoveSourceBranchAfterMerge:              gitlab.Bool(d.Get("remove_source_branch_after_merge").(bool)),
 		PackagesEnabled:                           gitlab.Bool(d.Get("packages_enabled").(bool)),
+		CIConfigPath:                              gitlab.String(d.Get("ci_config_path").(string)),
 	}
 
 	if v, ok := d.GetOk("path"); ok {
@@ -496,6 +503,10 @@ func resourceGitlabProjectUpdate(d *schema.ResourceData, meta interface{}) error
 
 	if d.HasChange("merge_method") {
 		options.MergeMethod = stringToMergeMethod(d.Get("merge_method").(string))
+	}
+
+	if d.HasChange("ci_config_path") {
+		options.CIConfigPath = gitlab.String(d.Get("ci_config_path").(string))
 	}
 
 	if d.HasChange("only_allow_merge_if_pipeline_succeeds") {
